@@ -210,3 +210,131 @@ OAuth2.0概要协议流已经在图1中给出, 描述了四个规则之间的相
 (G) 客户端请求一个新的访问 token，通过向认证服务器提供可刷新 token 并进行验证。对客户端的验证条件是基于客户端的类型和认证服务器的策略。
 
 (H) 认证服务器验证客户端和可刷新token，如果有效就分发一个新的访问token（也可以再发送一个新的可刷新令牌）
+
+
+###2. 客户端注册(Client Registrantion)
+-----
+
+	Before initiating the protocol, the client registers with the authorization server.  The means through which the client registers with the authorization server are beyond the scope of this specification but typically involve end-user interaction with an HTML registration form.
+
+在初始化这个协议之前客户端需要通过授权服务器注册. 客户端通过授权服务器注册的方法已经超出了这篇协议的讨论范围, 但是一般来说是通过HTML注册表单来交互的.
+
+	Client registration does not require a direct interaction between the client and the authorization server.  When supported by the authorization server, registration can rely on other means for establishing trust and obtaining the required client properties (e.g., redirection URI, client type).  For example, registration can be accomplished using a self-issued or third-party-issued assertion, or by the authorization server performing client discovery using a trusted channel.
+	
+客户端注册并不需要一个客户端和授权服务器的一个直接的交互.只要授权服务器支持, 也可以通过其他的一些方法来建立信任或者得到客户端所需要的属性(比如说, 重定义URI, 客户端类型). 比如说, 注册可以使用自己发行的或者第三方发行的办法来完成, 或者通过授权服务器使用一条可信任的通道执行客户端发现.
+
+
+	When registering a client, the client developer SHALL:
+	o  specify the client type as described in Section 2.1,
+	
+	o  provide its client redirection URIs as described in Section 3.1.2,
+      and
+      
+    o  include any other information required by the authorization server
+      (e.g., application name, website, description, logo image, the
+      acceptance of legal terms).
+      
+在注册一个客户端的时候, 客户端开发者应该:
+
+o  指定在2.1节中描述的客户端类型,
+
+o  提供开发者的在3.1.2节中描述的客户端的重定向URL
+
+o  包含任何授权服务器所需要的其他信息(比如说, 应用程序名称, 站点, 描述, logo图片, 可接受的合法条例).
+
+
+####2.1. 客户端类型(Client Types)
+	OAuth defines two client types, based on their ability to authenticate securely with the authorization server (i.e., ability to maintain the confidentiality of their client credentials):
+
+基于客户端通过授权服务器鉴定的安全性能力, OAuth定义了两种客户端类型(比如说, 维持他们客户端凭证的机密性的能力):
+
+
+	confidential
+      Clients capable of maintaining the confidentiality of their
+      credentials (e.g., client implemented on a secure server with
+      restricted access to the client credentials), or capable of secure
+      client authentication using other means.
+      
+机密的
+
+客户端有能力维持他们凭证的机密性(比如说, 客户端通过受到保护的方式访问客户端凭证工作在安全的客户端), 或者有能力使用其他方式保证客户端安全.
+
+	public
+      Clients incapable of maintaining the confidentiality of their
+      credentials (e.g., clients executing on the device used by the
+      resource owner, such as an installed native application or a web
+      browser-based application), and incapable of secure client
+      authentication via any other means.
+      
+公共的
+
+客户端没有能力维持他们凭证的机密性(比如说, 资源拥有着使用的执行在设备上的客户端, 比如说一个需要安装的本地应用或者一个基于浏览器的web应用), 并且没有能力使用其他方式来保证客户端的安全性.
+
+
+	The client type designation is based on the authorization server's definition of secure authentication and its acceptable exposure levels of client credentials.  The authorization server SHOULD NOT make assumptions about the client type.
+	
+客户端的指定是基于授权服务器对安全认证的定义以及对于客户端凭证可接受的级别. 授权服务器不应该假定客户端类型.
+
+
+	A client may be implemented as a distributed set of components, each with a different client type and security context (e.g., a distributed client with both a confidential server-based component and a public browser-based component).  If the authorization server does not provide support for such clients or does not provide guidance with regard to their registration, the client SHOULD register each component as a separate client.
+	   
+一个客户端可能是有一系列的分布式组件合作执行的, 每一个组件可能会有不同的客户端类型和安全内容(比如说, 分布式的客户端同时拥有一个机密的基于服务器的组件和一个公共的基于浏览器的组件).如果授权服务器不支持这样的客户端或者不提供这种类型的注册向导, 这样的客户端就只能每个组件注册一个不同的客户端了.
+
+	 This specification has been designed around the following client profiles:
+这篇规范大致设计了如下客户端类型:
+
+	 web application
+      A web application is a confidential client running on a web
+      server.  Resource owners access the client via an HTML user
+      interface rendered in a user-agent on the device used by the
+      resource owner.  The client credentials as well as any access
+      token issued to the client are stored on the web server and are
+      not exposed to or accessible by the resource owner.
+
+web应用程序
+
+一个web应用程序是一个安全的客户端运行在web服务器上. 资源拥有着访问这些客户端通过资源拥有着持有的HTML用户接口在用户终端设备上渲染.客户端凭证同时也作为任何访问令牌部署到客户端的时候是存储在web浏览器中的, 这样就不容易暴露给资源拥有着或者被资源拥有着轻易取出.
+
+
+	user-agent-based application
+      A user-agent-based application is a public client in which the
+      client code is downloaded from a web server and executes within a
+      user-agent (e.g., web browser) on the device used by the resource
+      owner.  Protocol data and credentials are easily accessible (and
+      often visible) to the resource owner.  Since such applications
+      reside within the user-agent, they can make seamless use of the
+      user-agent capabilities when requesting authorization.
+
+基于用户代理的应用程序
+
+一个基于用户代理的应用程序是指一个公共的客户端, 该客户端的代码是从web服务器上下载下来在用户终端中执行(比如说, 浏览器). 协议数据和凭证可以被轻易的访问(并且常常是可见的)对于资源拥有者.因此像这样的应用程序存在于用户终端里面, 当请求授权的时候他们有完全控制用户终端的能力.
+
+
+	native application
+      A native application is a public client installed and executed on
+      the device used by the resource owner.  Protocol data and
+      credentials are accessible to the resource owner.  It is assumed
+      that any client authentication credentials included in the
+      application can be extracted.  On the other hand, dynamically
+      issued credentials such as access tokens or refresh tokens can
+      receive an acceptable level of protection.  At a minimum, these
+      credentials are protected from hostile servers with which the
+      application may interact.  On some platforms, these credentials
+      might be protected from other applications residing on the same
+      device.
+本地应用程序
+
+一个本地应用程序是一个在资源拥有者的设备上安装和执行的公共的客户端.资源拥有者可以获取协议数据和凭证.假设任何存在于客户端的客户端认证凭证都可以被提取出来.另一方面, 动态的发布凭证比如说访问令牌或者可刷新令牌可以将安全保护级别提升到一个可以接受的层度.至少这些凭证可以防止与应用程序交互的敌对服务器. 在一些平台上, 这些凭证可能被同一个设备上的其他应用程序保护.
+
+
+####2.3. 客户端标示符(Client Authentication)
+-----------
+
+	If the client type is confidential, the client and authorization server establish a client authentication method suitable for the security requirements of the authorization server.  The authorization server MAY accept any form of client authentication meeting its security requirements.
+
+如果客户端类型是机密型的, 客户端和授权服务器确定了一个满足授权服务器安全需求的客户端认证方法. 授权服务器可以接受任何形式的客户端授权请求来达到他的安全需求.
+
+	Confidential clients are typically issued (or establish) a set of client credentials used for authenticating with the authorization server (e.g., password, public/private key pair).
+
+授权服务器会发布一系列的安全证书给机密型的客户单用于与授权服务器的认证(比如说, 密码, 公共/私有的密匙对).
+
